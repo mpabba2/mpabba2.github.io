@@ -7,7 +7,7 @@ var generationCount = 0;
 var pipeImg = undefined;
 
 function preload(){
-  img = loadImage('assets/green_pipe.png');
+  img = loadImage('https://mpabba2.github.io/assets/green_pipe.png');
 }
 
 function setup(){
