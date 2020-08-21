@@ -1,7 +1,7 @@
 class Pipe{
   //static variables for Pipe class
   static prevPipe = undefined;
-  static pipeGap = 150; //120
+  static pipeGap = 200; //120
   static pipeSpeed = 4;
 
   constructor(){
@@ -28,10 +28,13 @@ class Pipe{
   draw(){
     //drawing top portion
     fill('white');
+    image(pipeImgTop, this.xPos, 0, this.pipeWidth, this.yTopPos);
     //rect(this.xPos, 0, this.pipeWidth, this.yTopPos);
-    image(pipeImg, this.xPos, 0, this.pipeWidth, this.yTopPos);
+    //image(pipeImg, this.xPos, 0, this.pipeWidth, this.yTopPos);
     //drawing bottom portion
-    rect(this.xPos, this.yTopPos + Pipe.pipeGap, this.pipeWidth, height - Pipe.pipeGap - this.yTopPos);
+    //rect(this.xPos, this.yTopPos + Pipe.pipeGap, this.pipeWidth, height - Pipe.pipeGap - this.yTopPos);
+    image(pipeImgBottom, this.xPos, this.yTopPos + Pipe.pipeGap, this.pipeWidth, height - Pipe.pipeGap - this.yTopPos);
+
   }
 
   update(){

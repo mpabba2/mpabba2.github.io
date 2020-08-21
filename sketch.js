@@ -4,29 +4,44 @@ var birdArray = [];
 var savedBirds = [];
 var popSize = 100;
 var generationCount = 0;
-var pipeImg = undefined;
+var pipeImgTop = undefined;
+var pipeImgBottom = undefined;
+var backgroundImg = undefined;
+var ballDown = undefined;
+var ballUp = undefined;
+var ifBestBird = false;
+var checkbox;
+var ifTrain = true;
 
-function preload(){
-  pipeImg = loadImage('https://mpabba2.github.io/assets/green_pipe.png');
-}
+
+// function preload(){
+//   img = loadImage('https://mpabba2.github.io/assets/green_pipe.png');
+// }
 
 function setup(){
+  //loading in images
+  pipeImgTop = loadImage(pipeImgTopString);
+  pipeImgBottom = loadImage(pipeImgBottomString);
+  backgroundImg = loadImage(backgroundString);
+  ballDown = loadImage(ballDownString);
+  ballUp = loadImage(ballUpString);
+
+  //checkbox setup
+  checkbox = createCheckbox("Check to play trained model", false);
+  checkbox.changed(checkedEvent);
+
   createCanvas(900,500);
-  background('black');
+
   //add inital pipe
   pipeArray.push(new Pipe());
   for(let i = 0; i < popSize; i++){
     birdArray.push(new Bird());
   }
-  // birdArray.push(new Bird());
-  // birdArray.push(new Bird());
-
 }
 
 function draw(){
   //bird.update();
   //bird.draw();
-
   for(let i = 0; i < birdArray.length; i++){
     birdArray[i].update();
     //birdArray[i].draw();
@@ -93,7 +108,16 @@ function draw(){
   }
 
   //drawing birds and pipes
-  background('black');
+  //background('black');
+  image(backgroundImg, 0, 0, width, height);
+  textSize(15);
+  if(ifTrain){
+    text("Generation: " + generationCount, width - (width/6), height/30, width/6, height/20);
+  }
+  else{
+    text("Generation: N/A", width - (width/6), height/30, width/6, height/20);
+  }
+  text("Number of Birds: " + birdArray.length, width - (width/6), height/30 + height/20, width/6, height/20);
 
   for(let bird of birdArray){
     bird.draw();
@@ -103,19 +127,89 @@ function draw(){
   }
 
   //if next generation needs to be called
-  if(birdArray.length == 0){
+  if(ifTrain && birdArray.length == 0){
     createNewGeneration();
     generationCount++;
-    console.log("generation " + generationCount);
+    //console.log("generation " + generationCount);
+  }
 
+  //if best bird fails
+  if(!ifTrain && birdArray.length == 0){
+    createSavedBird();
   }
 
 
 }
 
-// //key bindings
+function createSavedBird(){
+ tf.tidy( () => {
+   birdArray = [];
+   savedBirds = [];
+ });
+ pipeArray = [];
+
+ //create model from data.js
+ const newModel = tf.sequential();
+
+ //adding hidden layer
+ const hidden = tf.layers.dense({
+   units: Bird.hidNode,
+   activation: "sigmoid",
+   inputShape: Bird.inNode
+ });
+
+ const output = tf.layers.dense({
+   units: Bird.outNode,
+   activation: "sigmoid"
+ });
+
+ //adding layers
+ newModel.add(hidden);
+ newModel.add(output);
+
+ newModel.setWeights(best_bird_weights);
+
+ birdArray.push(new Bird(newModel));
+}
+
+function checkedEvent(){
+  //release memory in savedBirds
+  for(let i = 0; i < savedBirds.length; i++){
+    savedBirds[i].brain.dispose();
+  }
+
+  for(let i = 0; i < birdArray.length; i++){
+    birdArray[i].brain.dispose();
+  }
+
+  tf.tidy( () => {
+    birdArray = [];
+    savedBirds = [];
+  });
+  pipeArray = [];
+  pipeArray.push(new Pipe());
+
+  generationCount = 0;
+
+  if(this.checked()){
+    ifTrain = false;
+    createSavedBird();
+    popSize = 1;
+  }
+  //if unchecked
+  else{
+    ifTrain = true;
+    popSize = 100;
+
+    for(let i = 0; i < popSize; i++){
+      birdArray.push(new Bird());
+    }
+  }
+}
+
+//key bindings
 // function keyPressed(){
 //   if(key == ' '){
-//     birdArray.up();
+//     birdArray[0].up();
 //   }
 // }

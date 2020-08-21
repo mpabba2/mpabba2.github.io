@@ -2,6 +2,15 @@ var mutateRate = .2;
 
 function createNewGeneration(){
   calculateFitness();
+
+  //saving bird
+  if(saveBest){
+    saveBest = false;
+    saveBird();
+    //let serializedBrain = JSON.stringify(saveBird.brain.model);
+    //save(serializedBrain, "best_bird.json");
+  }
+
   for(let i = 0; i < popSize; i++){
     //birdArray.push(createBird()); //try tidy() this
     tf.tidy(() => birdArray.push(createBird()));
@@ -58,11 +67,15 @@ function createBird(){
 function calculateFitness(){
   let sum = 0;
   for(let i = 0; i < savedBirds.length; i++){
-    sum += savedBirds[i].score;
+    //sum += savedBirds[i].score;
+    //taking square of fitness
+    sum += pow(savedBirds[i].score, 2);
   }
 
   for(let i = 0; i < savedBirds.length; i++){
-    savedBirds[i].fitness = savedBirds[i].score / sum;
+    //savedBirds[i].fitness = savedBirds[i].score / sum;
+    //square of fitness
+    savedBirds[i].fitness = pow(savedBirds[i].score, 2) / sum;
   }
   // let bestBird = undefined;
   // let birdFitness = -1;
@@ -75,6 +88,21 @@ function calculateFitness(){
   // return bestBird;
 }
 
-function pickBird(){
+//returns best bird based on fitness
+function getBestBird(){
+  let bestBird = undefined;
+  let bestFit = Infinity;
+  for(bird of savedBirds){
+    if(bird.fitness < bestFit){
+      bestBird = bird;
+      bestFit = bird.fitness;
+    }
+  }
+  return bestBird;
+}
+
+async function saveBird(){
+  let bestBird = getBestBird();
+  await bestBird.brain.model.save("localstorage://best-brain");
 
 }

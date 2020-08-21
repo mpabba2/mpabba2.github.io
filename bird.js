@@ -1,6 +1,9 @@
 class Bird{
+  static inNode = 5;
+  static hidNode = 8;
+  static outNode = 1;
   constructor(inBrain){
-    this.brain = new NeuralNetwork(5, 8, 1, inBrain);
+    this.brain = new NeuralNetwork(Bird.inNode, Bird.hidNode, Bird.outNode, inBrain);
     this.xPos = width/6;
     this.diameter = 30;
     this.yPos = height/2;
@@ -13,8 +16,22 @@ class Bird{
   }
 
   draw(){
-    fill('white');
+    if(this.velocity > 0){
+      fill('red');
+    }
+    else{
+      fill('blue');
+    }
+    //fill('white');
     circle(this.xPos, this.yPos, this.diameter);
+
+    //circles aren't perfect
+    // if(this.velocity > 0){
+    //   image(ballUp, this.xPos - this.diameter/2, this.yPos - this.diameter/2, this.diameter, this.diameter);
+    // }
+    // else{
+    //   image(ballDown, this.xPos - this.diameter/2, this.yPos - this.diameter/2, this.diameter, this.diameter);
+    // }
   }
 
   update(){
@@ -50,7 +67,7 @@ class Bird{
     }
 
     let inputs = [];
-    inputs[0] = closestPipe.xPos / width; //xPos of pipe
+    inputs[0] = (closestPipe.xPos + closestPipe.pipeWidth) / width; //xPos of pipe
     inputs[1] = closestPipe.yTopPos / height; //yTopPos of pipe
     inputs[2] = (closestPipe.yTopPos + Pipe.pipeGap) / height; //yBottomPos of pipe
     //inputs[3] = 1 / (1 + exp(-1 * this.velocity)) ; //bird velocity
